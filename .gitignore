@@ -1,0 +1,11 @@
+.venv/
+.preview/
+.msdfgen/
+__pycache__/
+build/
+dist/
+*.pyc
+reticles/*_reticle/
+evidence/
+
+/release/

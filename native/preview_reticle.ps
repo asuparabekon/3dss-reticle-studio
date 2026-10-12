@@ -1,0 +1,49 @@
+// Host geometry is a clear, front-facing glass plane. Reticle evaluation is the
+// game's complete reflex function; scope ink/paint use its shared MSDF evaluator.
+#include "common.h"
+uniform float4 markswitch_color;
+uniform float4 markswitch_current;
+uniform float4 timers;
+uniform float4 preview_frame; // width, height, angle units per pixel, scope context
+uniform float4 preview_scene; // background grey, illuminated, preview pan pixels x/y
+#include "reticle_msdf_reflex.h"
+Texture2D s_base;
+SamplerState smp_linear;
+
+struct PreviewOut
+{
+    float4 scene : SV_Target0;
+    float4 core : SV_Target1;
+    float4 glow : SV_Target2;
+};
+
+PreviewOut main(p_screen I)
+{
+    PreviewOut o;
+    ReticleAtlas atlas = reticle_atlas_open(s_base);
+    const float2 angle = (I.hpos.xy - 0.5 * preview_frame.xy - preview_scene.zw) * preview_frame.z;
+    const float units = rmsdf_units_per_radian(atlas);
+    const float3 P = float3(angle / units * 0.25, 0.25);
+    const float2 legacy = atlas.legacy_span > 0 ? 0.5 + angle / atlas.legacy_span : I.tc0;
+    float3 light = 0;
+    float3 scene = preview_scene.xxx;
+    if (preview_frame.w < 0.5)
+    {
+        light = reticle_msdf_reflex(s_base, smp_linear, atlas, P, float3(1,0,0), float3(0,1,0),
+                                  float3(0,0,1), I.tc0, 0, legacy);
+    }
+    else if (atlas.valid)
+    {
+        rmsdf_soften = 1.0; // scope materials do not use reflex hologram softness
+        ReticleMarks marks = reticle_msdf_marks(s_base, smp_linear, atlas, angle, ddx(angle), ddy(angle), markswitch_current.x);
+        float3 paint = reticle_msdf_paint(marks, preview_scene.x);
+        scene = lerp(scene, paint, marks.paint);
+        scene *= 1.0 - marks.ink;
+        light = reticle_msdf_emission(atlas, marks, reticle_msdf_lighting(s_base, atlas, markswitch_color, markswitch_current.x));
+    }
+    light *= preview_scene.y;
+    o.scene = float4(scene, 1);
+    o.core = reticle_msdf_core_out(light);
+    o.glow = reticle_msdf_glow_out(atlas, light);
+    return o;
+}

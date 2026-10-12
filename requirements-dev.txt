@@ -1,0 +1,4 @@
+-r requirements-gui.txt
+pyinstaller>=6,<7
+black>=26,<27
+ruff>=0.15,<1

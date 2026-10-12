@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" viewBox="-10 -10 20 20">
+<g inkscape:groupmode="layer" inkscape:label="paint"><rect id="surface" x="-4" y="-1" width="8" height="2" fill="#00ff00"/></g>
+<g inkscape:groupmode="layer" inkscape:label="Mark 1"><g inkscape:groupmode="layer" inkscape:label="illum"><rect id="bar" x="-4" y="-1" width="8" height="2" fill="#ff0000"/></g></g>
+<g inkscape:groupmode="layer" inkscape:label="Mark 2"><g inkscape:groupmode="layer" inkscape:label="illum"><circle id="dot" cy="4" r="1" fill="#0000ff"/></g></g>
+</svg>
